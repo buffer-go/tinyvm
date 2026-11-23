@@ -9,7 +9,7 @@ import { join } from 'node:path';
 // HALT 00, PUSH8 01, PUSH32 02, POP 03, DUP 04, SWAP 05, OVER 06, ROT 07,
 // ADD..LTU 10..22, JMP 30, JZ 31, JNZ 32, CALL 33, RET 34, LOAD 40, STORE 41,
 // PRINT 50, PUTC 51, IN 52, EXIT 53.
-const K = new Uint8Array(84).fill(255);
+const K = new Uint8Array(256).fill(255);
 for (const [o, i, a, u] of [
   [0, 0, 0, 0], [1, 1, 0, 1], [2, 4, 0, 1], [3, 0, 1, 0], [4, 0, 1, 2],
   [5, 0, 2, 2], [6, 0, 2, 3], [7, 0, 3, 3],
@@ -39,7 +39,6 @@ function run(p: Uint8Array, inp: Uint8Array): { out: Uint8Array; code: number } 
     if (st === 1000000) return done(10);
     if (pc < 0 || pc >= n) return done(9);
     const op = p[pc];
-    if (op > 83) return done(5);
     const k = K[op];
     if (k === 255) return done(5);
     const im = k >> 4;
@@ -124,7 +123,7 @@ function run(p: Uint8Array, inp: Uint8Array): { out: Uint8Array; code: number } 
         break;
       }
       case 81:
-        if (ol + 1 > 65536) return done(11);
+        if (ol === 65536) return done(11);
         out[ol++] = D[--sp] & 255;
         break;
       case 82: D[sp++] = ip < inp.length ? inp[ip++] : -1; break;
